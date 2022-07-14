@@ -62,9 +62,11 @@ const postsSlice = createSlice({
   },
   extraReducers(builder) {
     builder
+      // 비동기 작업을 시작했을 때 상태
       .addCase(fetchPosts.pending, (state, action) => {
         state.status = "loading";
       })
+      // 비동기 작업이 성공하여 끝났을 때 상태
       .addCase(fetchPosts.fulfilled, (state, action) => {
         state.status = "succeeded";
 
@@ -85,19 +87,22 @@ const postsSlice = createSlice({
         // Add any fetched posts to the array (가져온 게시물을 배열에 추가)
         state.posts = state.posts.concat(loadedPosts);
       })
+      // 비동기 작업중 오류가 생겨 중단 됐을 때
       .addCase(fetchPosts.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.error.message;
       })
+      // 새 게시물 저장시 추가 할 유저 오브젝트
       .addCase(addNewPost.fulfilled, (state, action) => {
+        // 저장버튼 누를시 userId와
         action.payload.userId = Number(action.payload.userId);
         action.payload.date = new Date().toISOString();
         action.payload.reactions = {
           thumbsUp: 0,
-          hooray: 0,
+          wow: 0,
           heart: 0,
           rocket: 0,
-          eyes: 0,
+          coffee: 0,
         };
         console.log(action.payload);
         state.posts.push(action.payload);
