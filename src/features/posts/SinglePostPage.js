@@ -33,7 +33,12 @@ const SinglePostPage = () => {
         <PostAuthor userId={post.userId} />
         <TimeAgo timestamp={post.date} />
       </p>
-      <ReactionButtons post={post} />
+      <div className="container">
+        <ReactionButtons post={post} />
+        <Link to={`/post/edit/${post.id}`} className="link">
+          수정{" "}
+        </Link>
+      </div>
     </article>
   );
 };

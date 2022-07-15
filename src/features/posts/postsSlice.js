@@ -13,12 +13,23 @@ const initialState = {
 // 비동기 썬크 사용하여 API가져오기
 const fetchPosts = createAsyncThunk("posts/fetchPosts", async () => {
   const response = await axios.get(POSTS_URL);
-  return response.data;
+  return response.data; // fulfilled의 action.payload로 약속된 이름으로써 주입됨
 });
 
 const addNewPost = createAsyncThunk("posts/addNewPost", async (initialPost) => {
+  // initialPost에는 form에 작성한 id, title, body, userId가 들어있음
   const response = await axios.post(POSTS_URL, initialPost);
   return response.data;
+});
+
+const updatePost = createAsyncThunk("posts/updatePost", async (initialPost) => {
+  const { id } = initialPost;
+  try {
+    const response = await axios.put(`${POSTS_URL}/${id}`, initialPost);
+    return response.data;
+  } catch (err) {
+    return err.message;
+  }
 });
 
 const postsSlice = createSlice({
@@ -62,11 +73,11 @@ const postsSlice = createSlice({
   },
   extraReducers(builder) {
     builder
-      // 비동기 작업을 시작했을 때 상태
+      // API비동기 작업을 시작했을 때 상태
       .addCase(fetchPosts.pending, (state, action) => {
         state.status = "loading";
       })
-      // 비동기 작업이 성공하여 끝났을 때 상태
+      // API비동기 작업이 성공하여 끝났을 때 상태
       .addCase(fetchPosts.fulfilled, (state, action) => {
         state.status = "succeeded";
 
@@ -87,7 +98,7 @@ const postsSlice = createSlice({
         // Add any fetched posts to the array (가져온 게시물을 배열에 추가)
         state.posts = state.posts.concat(loadedPosts);
       })
-      // 비동기 작업중 오류가 생겨 중단 됐을 때
+      // API비동기 작업중 오류가 생겨 중단 됐을 때
       .addCase(fetchPosts.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.error.message;
@@ -106,6 +117,18 @@ const postsSlice = createSlice({
         };
         console.log(action.payload);
         state.posts.push(action.payload);
+      })
+      // 게시물 수정 시 실행
+      .addCase(updatePost.fulfilled, (state, action) => {
+        if (!action.payload?.id) {
+          console.log("수정을 완료할 수 없습니다.");
+          console.log(action.payload);
+          return;
+        }
+        const { id } = action.payload;
+        action.payload.data = new Date().toISOString();
+        const posts = state.posts.filter((post) => post.id !== id);
+        state.posts = [...posts, action.payload];
       });
   },
 });
@@ -118,7 +141,7 @@ export const getPostsError = (state) => state.posts.error;
 export const selectPostById = (state, postId) =>
   state.posts.posts.find((post) => post.id === postId);
 
-export { fetchPosts, addNewPost };
+export { fetchPosts, addNewPost, updatePost };
 export const { postAdded, reactionAdded } = postsSlice.actions;
 
 export default postsSlice.reducer;

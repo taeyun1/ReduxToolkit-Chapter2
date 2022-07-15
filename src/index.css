@@ -107,3 +107,8 @@ nav a, nav a:visited {
 nav a:hover, nav a:focus {
   text-decoration: underline;
 }
+
+.container {
+	display: flex;
+	justify-content: space-between;
+}
