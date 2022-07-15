@@ -15,6 +15,8 @@ const PostsList = () => {
   const postStatus = useSelector(getPostsStatus);
   const error = useSelector(getPostsError);
 
+  useSelector((state) => console.log(state));
+
   // 최신 게시물이 상위로 설정
   // 게시물 정렬, 음수 또는 양수 또는 0 하나가 다음보다 큰 경우에 따라 그 날짜 문자열을 반환
   // const orderedPosts = posts
@@ -41,11 +43,6 @@ const PostsList = () => {
     content = <p>{error}</p>;
   }
 
-  return (
-    <section>
-      <h2>Posts</h2>
-      {content}
-    </section>
-  );
+  return <section>{content}</section>;
 };
 export default PostsList;
